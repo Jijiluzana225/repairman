@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Location of {{ booking.customer_name }}</title>
+    <!-- Add Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <!-- Add Leaflet Routing Machine CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+    <style>
+        #map {
+            height: 800px;
+            width: 100%;
+        }
+        .technician-label {
+    background-color: rgba(1, 247, 13, 0.9);
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 8px;
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    width: 200px;
+}
+
+    </style>
+</head>
+<body>
+    <h2>Location of {{ booking.customer_name }}</h2>
+    <p>Appointment Date: {{ booking.appointment_date }}</p>
+    
+    <div id="map"></div>
+
+    <!-- Add Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <!-- Add Leaflet Routing Machine JS -->
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+
+    <script>
+        // Initialize the map centered between the booker's and technician's locations
+        var map = L.map('map').setView([{{ technician_latitude }}, {{ technician_longitude }}], 13);
+
+        // Add OpenStreetMap tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Add technician's marker
+        var technicianMarker = L.marker([{{ technician_latitude }}, {{ technician_longitude }}]).addTo(map);
+
+        // Add booker's marker with popup
+        var customerMarker = L.marker([{{ customer_latitude }}, {{ customer_longitude }}]).addTo(map)
+            .bindPopup(`
+                <b>Booker Details:</b><br />
+                <strong>Name:</strong> {{ booking.customer_name }}<br />
+                <strong>Location:</strong> {{ customer_latitude }}, {{ customer_longitude }}<br />
+            `)
+            .openPopup();
+
+        // Add technician's details as a static label on the map
+        var technicianLabel = L.divIcon({
+            className: 'technician-label',
+            html: `
+                <b>Technician Details:</b><br />
+                <strong>Name:</strong> {{ booking.repairman.name }}<br />
+                <strong>Specialty:</strong> {{ booking.repairman.specialty }}
+            `,
+            iconSize: null // Let the content determine the size
+        });
+
+        L.marker([{{ technician_latitude }}, {{ technician_longitude }}], { icon: technicianLabel }).addTo(map);
+
+        // Create and display the route between technician and booker
+        var route = L.Routing.control({
+            waypoints: [
+                L.latLng({{ technician_latitude }}, {{ technician_longitude }}), // Technician location
+                L.latLng({{ customer_latitude }}, {{ customer_longitude }}) // Booker location
+            ],
+            routeWhileDragging: true
+        }).addTo(map);
+    </script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+<form method="POST">
+    {% csrf_token %}
+    <input type="text" name="query" placeholder="Search Repairmen" />
+    <button type="submit">Search</button>
+</form>
+
+<h2>Repairmen</h2>
+<ul>
+    {% for repairman in repairmen %}
+        <li>
+            {{ repairman.name }} - {{ repairman.specialty }}
+            <a href="{% url 'booking:book_appointment' repairman.id %}">Book Appointment</a>
+        </li>
+    {% endfor %}
+</ul>

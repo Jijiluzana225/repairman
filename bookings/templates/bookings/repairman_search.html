@@ -1,0 +1,9 @@
+<h1>Repairman Search</h1>
+<ul>
+  {% for repairman in repairmen %}
+    <li>
+      {{ repairman.name }} - {{ repairman.expertise }}
+      <a href="{% url 'book_appointment' repairman.id %}">Book an Appointment</a>
+    </li>
+  {% endfor %}
+</ul>

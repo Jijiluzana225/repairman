@@ -1,0 +1,88 @@
+<h2>Book Appointment with {{ repairman.name }}</h2>
+
+<form method="POST">
+    {% csrf_token %}
+    <label for="customer_name">Your Name:</label>
+    <input type="text" id="customer_name" name="customer_name" required />
+
+    <label for="appointment_date">Appointment Date:</label>
+    <input type="datetime-local" id="appointment_date" name="appointment_date" required />
+
+    <label for="customer_location">Your Location (GPS):</label>
+    <input type="text" id="customer_location" name="customer_location" readonly required />
+
+    <div id="map" style="height: 700px; margin: 10px 0;"></div>
+
+    <button type="submit">Book Appointment</button>
+</form>
+
+<!-- Include Leaflet JS and CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+<script>
+    // Initialize the map
+    var map = L.map('map').setView([0, 0], 2); // Default view if geolocation is not available
+
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Marker to represent the user's location
+    var marker = null;
+
+    // Geolocation: Auto-detect user location
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            var lat = position.coords.latitude;
+            var lng = position.coords.longitude;
+
+            // Center map on detected location
+            map.setView([lat, lng], 13);
+
+            // Update marker position
+            if (marker) {
+                marker.setLatLng([lat, lng]);
+            } else {
+                marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+            }
+
+            // Update input field with detected location
+            document.getElementById('customer_location').value = lat + ',' + lng;
+
+            // Add event to update location when marker is dragged
+            marker.on('dragend', function(e) {
+                var position = marker.getLatLng();
+                document.getElementById('customer_location').value = position.lat + ',' + position.lng;
+            });
+        }, function(error) {
+            alert("Geolocation failed: " + error.message + ". Please select your location manually.");
+        });
+    } else {
+        alert("Geolocation is not supported by this browser. Please select your location manually.");
+    }
+
+    // Allow manual location selection on the map
+    map.on('click', function(e) {
+        var lat = e.latlng.lat;
+        var lng = e.latlng.lng;
+
+        // Update or add marker
+        if (marker) {
+            marker.setLatLng([lat, lng]);
+        } else {
+            marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+        }
+
+        // Update input field with selected location
+        document.getElementById('customer_location').value = lat + ',' + lng;
+
+        // Allow drag updates
+        marker.on('dragend', function(e) {
+            var position = marker.getLatLng();
+            document.getElementById('customer_location').value = position.lat + ',' + position.lng;
+        });
+    });
+</script>
+

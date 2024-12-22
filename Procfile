@@ -1,0 +1,1 @@
+web: gunicorn repair_booking.wsgi --log-file -
