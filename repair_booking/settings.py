@@ -77,8 +77,12 @@ WSGI_APPLICATION = 'repair_booking.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',  # Use PostgreSQL
+        'NAME': 'railway',  # Replace with your database name
+        'USER': 'postgres',  # Replace with your PostgreSQL user
+        'PASSWORD': 'vfApDrYfhLenlzrYFGDRpNstEEFitZhv',  # Replace with your PostgreSQL password
+        'HOST': 'autorack.proxy.rlwy.net',  # For local development, use 'localhost'
+        'PORT': '37771',  # Default PostgreSQL port
     }
 }
 
